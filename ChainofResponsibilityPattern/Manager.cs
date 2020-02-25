@@ -26,7 +26,7 @@ namespace CallCenter
         public void ProcessCall(ICall call)
         {
             call.Status = CallStatus.Processing;
-            Console.WriteLine($"{this.EmployeeID} is Prcessing call {call.CallID}");
+            Console.WriteLine($"Manager: {this.EmployeeID} is Prcessing call {call.CallID}");
             call.Status = CallStatus.Accomplished;
         }
     }

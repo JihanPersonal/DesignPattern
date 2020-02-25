@@ -29,12 +29,12 @@ namespace CallCenter
             call.Status = CallStatus.Processing;
             if (call.CallID < 90)
             {
-                Console.WriteLine($"{this.EmployeeID} is Prcessing call {call.CallID}");
+                Console.WriteLine($"Director: {this.EmployeeID} is Prcessing call {call.CallID}");
                 call.Status = CallStatus.Accomplished;
             }
             else
             {
-                Console.WriteLine($"{this.EmployeeID} Cannot Prcessing call {call.CallID}");
+                Console.WriteLine($"Director: {this.EmployeeID} Cannot Prcessing call {call.CallID}");
                 Esclate(call);
             }
         }

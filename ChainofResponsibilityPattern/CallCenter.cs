@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading;
 namespace CallCenter
@@ -9,9 +10,9 @@ namespace CallCenter
         public static List<Employee> Employees = new List<Employee>();
         public static List<Director> Directors = new List<Director>();
         public static List<Manager> Managers = new List<Manager>();
-        public static Queue<ICall> Calls = new Queue<ICall>();
-        public static Queue<ICall> DirCalls = new Queue<ICall>();
-        public static Queue<ICall> MamCalls = new Queue<ICall>();
+        public static ConcurrentQueue<ICall> Calls = new ConcurrentQueue<ICall>();
+        public static ConcurrentQueue<ICall> DirCalls = new ConcurrentQueue<ICall>();
+        public static ConcurrentQueue<ICall> MamCalls = new ConcurrentQueue<ICall>();
         public static void Start()
         {
             ProcessCalls();
@@ -23,14 +24,13 @@ namespace CallCenter
 
             Thread newcall = new Thread(() =>
               {
-                  while (true)
+                  while (count++ < 20)
                   {
-                      count++;
-                      lock (Calls)
-                      {
-                          Calls.Enqueue(new Call((7 + count % 3) * 10 + 5));
-                          Thread.Sleep(2000);
-                      }
+                      Random random = new Random();
+                      int id = random.Next(70, 100);
+                      Console.WriteLine($"Receive new Call: {id}");
+                      Calls.Enqueue(new Call(id));
+                      Thread.Sleep(2000);
                   }
               });
             newcall.Start();
@@ -53,8 +53,12 @@ namespace CallCenter
             {
                 if (Calls.Count > 0)
                 {
-                    ICall call = Calls.Dequeue();
-                    Employees.First().ProcessCall(call);
+                    ICall call;
+                    Calls.TryDequeue(out call);
+                    if (call != null)
+                    {
+                        Employees.First().ProcessCall(call);
+                    }
                 }
                 Thread.Sleep(1000);
             }
@@ -65,8 +69,12 @@ namespace CallCenter
             {
                 if (DirCalls.Count > 0)
                 {
-                    ICall call = DirCalls.Dequeue();
-                    Directors.First().ProcessCall(call);
+                    ICall call;
+                    DirCalls.TryDequeue(out call);
+                    if (call != null)
+                    {
+                        Directors.First().ProcessCall(call);
+                    }
                 }
             }
         }
@@ -76,8 +84,12 @@ namespace CallCenter
             {
                 if (MamCalls.Count > 0)
                 {
-                    ICall call = MamCalls.Dequeue();
-                    Managers.First().ProcessCall(call);
+                    ICall call;
+                    MamCalls.TryDequeue(out call);
+                    if (call != null)
+                    {
+                        Managers.First().ProcessCall(call);
+                    }
 
                 }
                 Thread.Sleep(1000);
